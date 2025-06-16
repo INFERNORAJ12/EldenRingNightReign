@@ -1,8 +1,6 @@
 name: Build Windows EXE
 
 on:
-  push:
-    branches: [ master ]
   workflow_dispatch:
 
 jobs:
@@ -24,8 +22,8 @@ jobs:
     - name: Build EXE
       run: pyinstaller --onefile --windowed nightrein.py
 
-    - name: Upload EXE
+    - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Windows-EXE
+        name: NightRein-EXE
         path: dist/nightrein.exe
