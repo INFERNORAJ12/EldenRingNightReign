@@ -4,9 +4,13 @@ import subprocess
 import tkinter as tk
 from tkinter import filedialog, messagebox
 
-CONFIG_FILE = "config.json"
+# Path for persistent config
+CONFIG_DIR = r"C:\LETTHENIGGAKNOW"
+CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 
-# Load & save configuration
+# Ensure folder exists
+os.makedirs(CONFIG_DIR, exist_ok=True)
+
 def load_config():
     if os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, 'r') as file:
@@ -17,7 +21,6 @@ def save_config(config):
     with open(CONFIG_FILE, 'w') as file:
         json.dump(config, file)
 
-# INI File selection
 def select_ini_file():
     messagebox.showinfo("Step 1: Select INI File", "Select 'nrsc_settings.ini' inside SeamlessCoop folder.")
     return filedialog.askopenfilename(
@@ -25,7 +28,6 @@ def select_ini_file():
         filetypes=[("INI files", "*.ini")]
     )
 
-# Replace player_count in ini
 def update_player_count(ini_path, player_count):
     try:
         with open(ini_path, 'r', encoding='utf-8') as file:
@@ -52,7 +54,6 @@ def update_player_count(ini_path, player_count):
         messagebox.showerror("Error", f"Failed to update INI:\n{e}")
         return False
 
-# Derive paths
 def get_launcher_and_dll(ini_path):
     seamless_dir = os.path.dirname(ini_path)  # SeamlessCoop/
     game_dir = os.path.dirname(seamless_dir)  # Game/
@@ -60,17 +61,15 @@ def get_launcher_and_dll(ini_path):
     dll = os.path.join(seamless_dir, "nrsc.dll")
     return launcher, dll
 
-# Launch exe as admin
 def run_as_admin(exe_path):
     try:
         subprocess.run([
             "powershell", "-Command",
-            f'Start-Process "{exe_path}" -WorkingDirectory "{os.path.dirname(exe_path)}" -Verb RunAs'
+            f'Start-Process \"{exe_path}\" -WorkingDirectory \"{os.path.dirname(exe_path)}\" -Verb RunAs'
         ], shell=True)
     except Exception as e:
         messagebox.showerror("Error", f"Failed to launch launcher:\n{e}")
 
-# Main handler when player count is selected
 def handle_player_count(player_count):
     config = load_config()
     ini_path = config.get("ini_path")
@@ -97,12 +96,11 @@ def handle_player_count(player_count):
         messagebox.showinfo("Success", f"Player count set to {player_count}. Launching...")
         run_as_admin(launcher_path)
 
-# GUI setup
 def main():
     root = tk.Tk()
     root.title("Elden Ring Coop Launcher")
     root.geometry("320x250")
-    root.configure(bg="#1e1e1e")  # dark background
+    root.configure(bg="#1e1e1e")
     root.resizable(False, False)
 
     label = tk.Label(
@@ -129,9 +127,9 @@ def main():
             command=lambda: handle_player_count(count)
         )
 
-    styled_button("1 Player", 1, "#0078D7").pack(pady=5)   # blue
-    styled_button("2 Players", 2, "#28a745").pack(pady=5) # green
-    styled_button("3 Players", 3, "#e69500").pack(pady=5) # amber
+    styled_button("1 Player", 1, "#0078D7").pack(pady=5)
+    styled_button("2 Players", 2, "#28a745").pack(pady=5)
+    styled_button("3 Players", 3, "#e69500").pack(pady=5)
 
     root.mainloop()
 
